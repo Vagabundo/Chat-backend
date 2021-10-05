@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using PublicChat.Hubs;
 
 namespace PublicChat
@@ -29,13 +24,39 @@ namespace PublicChat
             services.AddControllers();
             services.AddSignalR();
 
+            // Register the Swagger services
+            services.AddSwaggerDocument(config =>
+            {
+                // config.OperationProcessors.Add(new OperationSecurityScopeProcessor("JWT token"));
+                // config.AddSecurity("JWT token", new OpenApiSecurityScheme
+                // {
+                //     Type = OpenApiSecuritySchemeType.ApiKey,
+                //     Name = "Authorization",
+                //     Description = "Copy 'Bearer ' + valid JWT token into field",
+                //     In = OpenApiSecurityApiKeyLocation.Header
+                // });
+
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Vagachat API";
+                    document.Info.Description = "Backend for Vagachat";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "Vagabundo"
+                    };
+                };
+            });
+
             services.AddCors(options => options.AddPolicy("CorsPolicy",
                 builder =>
                 {
-                    builder.AllowAnyMethod()
-                        .AllowAnyHeader()
+                    builder
                         //.AllowAnyOrigin()
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4200", "http://vagabundo-webchat-front.westeurope.azurecontainer.io")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
                         .AllowCredentials();
                 })
             );
@@ -49,12 +70,13 @@ namespace PublicChat
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
+
             app.UseCors("CorsPolicy");
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
