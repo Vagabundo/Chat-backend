@@ -11,14 +11,23 @@ terraform {
 }
 
 terraform {
-  backend "remote" {
-    organization = "Vagacorp"
-
-    workspaces {
-      name = "web-chat"
-    }
+  backend "azurerm" {
+    resource_group_name  = "tf_rg_blobstore"
+    storage_account_name = "tfstorageaccvaga"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
   }
 }
+
+# terraform {
+#   backend "remote" {
+#     organization = "Vagacorp"
+
+#     workspaces {
+#       name = "web-chat"
+#     }
+#   }
+# }
 
 provider "azurerm" {
   features {}
@@ -56,7 +65,7 @@ resource "azurerm_container_group" "webchat_containergroup" {
 
   container {
     name   = var.project_name
-    image  = "vagabundocker/${var.project_name}:latest"
+    image  = "vagabundocker/${var.project_name}:${var.imagebuild}"
     cpu    = "1"
     memory = "1"
 
