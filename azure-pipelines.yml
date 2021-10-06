@@ -34,10 +34,10 @@ stages:
   jobs:
   - job: Provision
     displayName: 'Provisioning containers'
-      pool:
-    vmImage: ubuntu-latest
+    pool:
+      vmImage: ubuntu-latest
     variables:
-      - group: Terraform
+    - group: Terraform
     steps:
     - script: |
         set -e
