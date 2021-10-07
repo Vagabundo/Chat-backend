@@ -17,6 +17,8 @@ stages:
   jobs:
   - job: Build
     displayName: Build
+    variables:
+    - group: Terraform
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -55,7 +57,7 @@ stages:
         publishWebProjects: true
     - task: AzureWebApp@1
       inputs:
-        azureSubscription: 'f9ad7077-366d-4bb1-9158-2847f8cc490a'
+        azureSubscription: 'Vagabundo Azure Resource manager'
         appType: 'webAppLinux'
         appName: 'webchat-dev-appservice'
         package: '$(System.DefaultWorkingDirectory)/**/*.zip'
