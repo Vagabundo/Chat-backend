@@ -20,14 +20,46 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - task: Docker@2
+    # - task: Docker@2
+    #   displayName: 'docker build and push'
+    #   inputs:
+    #     containerRegistry: 'Vagabundocker Hub'
+    #     repository: 'vagabundocker/webchat'
+    #     command: 'buildAndPush'
+    #     Dockerfile: '**/Dockerfile'
+    #     tags: |
+    #       $(tag)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build'
       inputs:
-        containerRegistry: 'Vagabundocker Hub'
-        repository: 'vagabundocker/webchat'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: |
-          $(tag)
+        command: 'restore'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build'
+      inputs:
+        command: 'build'
+    # ...
+    # do this after you've built your app, near the end of your pipeline in most cases
+    # for example, you do this before you deploy to an Azure web app on Windows
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'dotnet publish'
+    #   inputs:
+    #     command: publish
+    #     publishWebProjects: True
+    #     zipAfterPublish: True
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'f9ad7077-366d-4bb1-9158-2847f8cc490a'
+        appType: 'webAppLinux'
+        appName: 'webchat-dev-appservice'
+        package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+
 - stage: Provision
   displayName: 'Terraforming on Azure'
   dependsOn: Build
