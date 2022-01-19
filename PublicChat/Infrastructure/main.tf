@@ -43,16 +43,16 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
-# resource "azurerm_app_service_plan" "freeplan" {
-#   name                = "${var.resource_group_name}-plan"
-#   location            = azurerm_resource_group.rg.location
-#   resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_app_service_plan" "freeplan" {
+  name                = "${var.resource_group_name}-plan"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
-#   sku {
-#     tier = "Free"
-#     size = "F1"
-#   }
-# }
+  sku {
+    tier = "Free"
+    size = "F1"
+  }
+}
 
 # resource "azurerm_container_group" "webchat_containergroup" {
 #   name                = "${var.resource_group_name}-containergroup"
@@ -80,28 +80,29 @@ resource "azurerm_resource_group" "rg" {
 #   }
 # }
 
-resource "azurerm_app_service_plan" "linuxfreeplan" {
-  name                = "${var.resource_group_name}-linuxplan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  kind = "Linux"
-  reserved = true
+# resource "azurerm_app_service_plan" "linuxfreeplan" {
+#   name                = "${var.resource_group_name}-linuxplan"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   kind = "Linux"
+#   reserved = true
 
-  sku {
-    tier = "Free"
-    size = "F1"
-  }
-}
+#   sku {
+#     tier = "Free"
+#     size = "F1"
+#   }
+# }
 
 resource "azurerm_app_service" "vagachatappservice" {
   name                = "${var.resource_group_name}-appservice"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  app_service_plan_id = azurerm_app_service_plan.linuxfreeplan.id
+  app_service_plan_id = azurerm_app_service_plan.freeplan.id
 
   site_config {
-    linux_fx_version          = "DOTNETCORE|3.1"
-    use_32_bit_worker_process = true
+    dotnet_framework_version = "v4.0"
+    # linux_fx_version          = "DOTNETCORE|3.1"
+    # use_32_bit_worker_process = true
   }
 
   tags = {
