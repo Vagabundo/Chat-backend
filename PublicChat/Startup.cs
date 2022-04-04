@@ -56,8 +56,8 @@ namespace PublicChat
                         //.AllowAnyOrigin()
                         .WithOrigins("http://localhost", "http://vagabundo-webchat-front.westeurope.azurecontainer.io")
                         .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                        .AllowAnyMethod();
+                        //.AllowCredentials();
                 })
             );
         }
