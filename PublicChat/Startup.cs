@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 using PublicChat.Hubs;
+using PublicChat.Services;
 
 namespace PublicChat
 {
@@ -60,6 +61,8 @@ namespace PublicChat
                         //.AllowCredentials();
                 })
             );
+
+            services.AddScoped<IAIChatService, ChatGPTService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
