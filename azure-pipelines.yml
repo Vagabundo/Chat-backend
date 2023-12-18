@@ -88,3 +88,6 @@ stages:
         ARM_TENANT_ID: $(ARM_TENANT_ID)
         TF_VAR_imagebuild: $(tag)
 
+# https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#opting-out-of-pr-validation
+pr: none
+
