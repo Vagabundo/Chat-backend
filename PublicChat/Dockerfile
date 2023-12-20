@@ -13,6 +13,7 @@ RUN dotnet publish -c Release -o out
 # Generate runtime image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 WORKDIR /app
+ENV OPENAI_API_KEY=MY_OPENAI_KEY
 EXPOSE 80
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "PublicChat.dll"]

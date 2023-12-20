@@ -8,7 +8,7 @@ namespace PublicChat.Services
         private OpenAIAPI _api;
         public ChatGPTService ()
         {
-            _api = new OpenAIAPI(new APIAuthentication("OpenAPI_Key"));
+            _api = new OpenAIAPI(APIAuthentication.LoadFromEnv());
         }
         public async Task<string> GetAnswer(string message)
         {
