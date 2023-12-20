@@ -25,7 +25,7 @@ namespace PublicChat
             services.AddControllers();
             services.AddSignalR();
 
-            // Register the Swagger services
+            // Register Swagger services
             services.AddSwaggerDocument(config =>
             {
                 // config.OperationProcessors.Add(new OperationSecurityScopeProcessor("JWT token"));
@@ -57,8 +57,8 @@ namespace PublicChat
                         //.AllowAnyOrigin()
                         .WithOrigins("http://localhost", "http://vagabundo-webchat-front.westeurope.azurecontainer.io")
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
-                        //.AllowCredentials();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 })
             );
 
@@ -78,7 +78,8 @@ namespace PublicChat
 
             app.UseCors("CorsPolicy");
 
-            app.UseHttpsRedirection();
+            // disable in local
+            //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 
