@@ -57,7 +57,7 @@ stages:
         publishWebProjects: true
     - task: AzureWebApp@1
       inputs:
-        azureSubscription: 'Vagabundo Azure Resource manager'
+        azureSubscription: 'Vagabundo Azure Resource manager2'
         appType: 'webAppLinux'
         appName: 'webchat-dev-appservice'
         package: '$(System.DefaultWorkingDirectory)/**/*.zip'
