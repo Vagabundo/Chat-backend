@@ -1,5 +1,5 @@
 # Get Base Image (Full .NET Core SDK)
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
 WORKDIR /app
 
 # Copy csproj and restore
@@ -11,7 +11,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Generate runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine
 WORKDIR /app
 ENV OPENAI_API_KEY=MY_OPENAI_KEY
 EXPOSE 80

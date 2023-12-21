@@ -100,9 +100,9 @@ resource "azurerm_app_service" "vagachatappservice" {
   app_service_plan_id = azurerm_app_service_plan.freeplan.id
 
   site_config {
-    dotnet_framework_version = "v4.0"
+    dotnet_framework_version = "v6.0"
     # linux_fx_version          = "DOTNETCORE|3.1"
-    # use_32_bit_worker_process = true
+    use_32_bit_worker_process = true
   }
 
   tags = {
