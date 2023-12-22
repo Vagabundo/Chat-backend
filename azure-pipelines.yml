@@ -2,6 +2,10 @@
 # Build a Docker image
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
+
+# https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#opting-out-of-pr-validation
+#pr: none
+
 trigger:
 - main
 
@@ -12,6 +16,33 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
+- stage: Provision
+  displayName: 'Terraforming on Azure'
+  dependsOn: Build
+  jobs:
+  - job: Provision
+    displayName: 'Provisioning containers'
+    pool:
+      vmImage: ubuntu-latest
+    variables:
+    - group: Terraform
+    steps:
+    - script: |
+        set -e
+
+        cd PublicChat/Infrastructure
+        terraform init -input=false
+        terraform apply -input=false -auto-approve
+      name: 'RunTerraform'
+      displayName: 'Run Terraform'
+      env:
+        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+        ARM_TENANT_ID: $(ARM_TENANT_ID)
+        OPENAI_API_KEY: $(OPENAI_API_KEY)
+        TF_VAR_imagebuild: $(tag)
+
 - stage: Build
   displayName: Build image
   jobs:
@@ -61,34 +92,4 @@ stages:
         appType: 'webAppLinux'
         appName: 'webchat-dev-appservice'
         package: '$(System.DefaultWorkingDirectory)/**/*.zip'
-
-- stage: Provision
-  displayName: 'Terraforming on Azure'
-  dependsOn: Build
-  jobs:
-  - job: Provision
-    displayName: 'Provisioning containers'
-    pool:
-      vmImage: ubuntu-latest
-    variables:
-    - group: Terraform
-    steps:
-    - script: |
-        set -e
-
-        cd PublicChat/Infrastructure
-        terraform init -input=false
-        terraform apply -input=false -auto-approve
-      name: 'RunTerraform'
-      displayName: 'Run Terraform'
-      env:
-        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-        ARM_TENANT_ID: $(ARM_TENANT_ID)
-        OPENAI_API_KEY: $(OPENAI_API_KEY)
-        TF_VAR_imagebuild: $(tag)
-
-# https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#opting-out-of-pr-validation
-#pr: none
 
