@@ -79,7 +79,7 @@ namespace PublicChat
             app.UseCors("CorsPolicy");
 
             // disable in local
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 
