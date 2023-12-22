@@ -43,16 +43,16 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
-resource "azurerm_app_service_plan" "freeplan" {
-  name                = "${var.resource_group_name}-plan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+# resource "azurerm_app_service_plan" "freeplan" {
+#   name                = "${var.resource_group_name}-plan"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
 
-  sku {
-    tier = "Free"
-    size = "F1"
-  }
-}
+#   sku {
+#     tier = "Free"
+#     size = "F1"
+#   }
+# }
 
 resource "azurerm_container_group" "webchat_containergroup" {
   name                = "${var.resource_group_name}-containergroup"
@@ -78,6 +78,10 @@ resource "azurerm_container_group" "webchat_containergroup" {
   tags = {
     Environment = "Web chat"
   }
+
+  # esto no sería necesario si mas arriba usaramos azurerm_resource_group.rg.location,
+  # pero lo dejo como ejemplo de uso de depends_on
+  depends_on = [azurerm_resource_group.rg]
 }
 
 # resource "azurerm_app_service_plan" "linuxfreeplan" {
