@@ -18,7 +18,6 @@ variables:
 stages:
 - stage: Provision
   displayName: 'Terraforming on Azure'
-  dependsOn: Build
   jobs:
   - job: Provision
     displayName: 'Provisioning containers'
@@ -45,6 +44,7 @@ stages:
 
 - stage: Build
   displayName: Build image
+  dependsOn: Provision
   jobs:
   - job: Build
     displayName: Build
