@@ -6,6 +6,7 @@
 # https://learn.microsoft.com/en-us/azure/devops/pipelines/repos/github?view=azure-devops&tabs=yaml#opting-out-of-pr-validation
 #pr: none
 
+# Option 1: using docker containers
 trigger:
 - main
 
@@ -16,8 +17,51 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
+- stage: Build
+  displayName: Build image
+  jobs:
+  # - job: Build
+  #   displayName: Build
+  #   pool:
+  #     vmImage: ubuntu-latest
+  #   steps:
+  #   - task: Docker@2
+  #     displayName: 'docker build and push'
+  #     inputs:
+  #       containerRegistry: 'Vagabundocker Hub'
+  #       repository: 'vagabundocker/webchat'
+  #       command: 'buildAndPush'
+  #       Dockerfile: '**/Dockerfile'
+  #       tags: |
+  #         $(tag)
+    - job: Build
+      displayName: Build
+      pool:
+        vmImage: $(vmImageName)
+      variables:
+      - group: Terraform
+      steps:
+      - task: Docker@2
+        displayName: Build
+        inputs:
+          command: build
+          containerRegistry: 'Vagabundocker Hub'
+          repository: 'vagabundocker/webchat'
+          Dockerfile: '**/Dockerfile'
+          arguments: --build-arg API_KEY=$(OPENAI_API_KEY)
+          tags: |
+            $(tag)
+      - task: Docker@2
+        displayName: Push
+        inputs:
+          command: push
+          repository: 'vagabundocker/webchat'
+          containerRegistry: 'Vagabundocker Hub'
+          tags: |
+            $(tag)
 - stage: Provision
   displayName: 'Terraforming on Azure'
+  dependsOn: Build
   jobs:
   - job: Provision
     displayName: 'Provisioning containers'
@@ -39,57 +83,85 @@ stages:
         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
         ARM_TENANT_ID: $(ARM_TENANT_ID)
-        OPENAI_API_KEY: $(OPENAI_API_KEY)
         TF_VAR_imagebuild: $(tag)
 
-- stage: Build
-  displayName: Build image
-  dependsOn: Provision
-  jobs:
-  - job: Build
-    displayName: Build
-    variables:
-    - group: Terraform
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    # - task: Docker@2
-    #   displayName: 'docker build and push'
-    #   inputs:
-    #     containerRegistry: 'Vagabundocker Hub'
-    #     repository: 'vagabundocker/webchat'
-    #     command: 'buildAndPush'
-    #     Dockerfile: '**/Dockerfile'
-    #     tags: |
-    #       $(tag)
 
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet build'
-      inputs:
-        command: 'restore'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet build'
-      inputs:
-        command: 'build'
-    # ...
-    # do this after you've built your app, near the end of your pipeline in most cases
-    # for example, you do this before you deploy to an Azure web app on Windows
-    # - task: DotNetCoreCLI@2
-    #   displayName: 'dotnet publish'
-    #   inputs:
-    #     command: publish
-    #     publishWebProjects: True
-    #     zipAfterPublish: True
+# option 2: app service (no funcionaaaaa)
+# trigger:
+# - main
 
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-    - task: AzureWebApp@1
-      inputs:
-        azureSubscription: 'Vagabundo Azure Resource manager2'
-        appType: 'webAppLinux'
-        appName: 'webchat-dev-appservice'
-        package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+# resources:
+# - repo: self
+
+# variables:
+#   tag: '$(Build.BuildId)'
+
+# stages:
+# - stage: Provision
+#   displayName: 'Terraforming on Azure'
+#   jobs:
+#   - job: Provision
+#     displayName: 'Provisioning containers'
+#     pool:
+#       vmImage: ubuntu-latest
+#     variables:
+#     - group: Terraform
+#     steps:
+#     - script: |
+#         set -e
+
+#         cd PublicChat/Infrastructure
+#         terraform init -input=false
+#         terraform apply -input=false -auto-approve
+#       name: 'RunTerraform'
+#       displayName: 'Run Terraform'
+#       env:
+#         ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+#         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+#         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+#         ARM_TENANT_ID: $(ARM_TENANT_ID)
+#         OPENAI_API_KEY: $(OPENAI_API_KEY)
+#         TF_VAR_imagebuild: $(tag)
+
+# - stage: Build
+#   displayName: Build image
+#   dependsOn: Provision
+#   jobs:
+#   - job: Build
+#     displayName: Build
+#     variables:
+#     - group: Terraform
+#     pool:
+#       vmImage: ubuntu-latest
+#     steps:
+#     - task: DotNetCoreCLI@2
+#       displayName: 'dotnet build'
+#       inputs:
+#         command: 'restore'
+
+#     - task: DotNetCoreCLI@2
+#       displayName: 'dotnet build'
+#       inputs:
+#         command: 'build'
+#     # ...
+#     # do this after you've built your app, near the end of your pipeline in most cases
+#     # for example, you do this before you deploy to an Azure web app on Windows
+#     # - task: DotNetCoreCLI@2
+#     #   displayName: 'dotnet publish'
+#     #   inputs:
+#     #     command: publish
+#     #     publishWebProjects: True
+#     #     zipAfterPublish: True
+
+#     - task: DotNetCoreCLI@2
+#       inputs:
+#         command: 'publish'
+#         publishWebProjects: true
+#     - task: AzureWebApp@1
+#       inputs:
+#         azureSubscription: 'Vagabundo Azure Resource manager2'
+#         appType: 'webAppLinux'
+#         appName: 'webchat-dev-appservice'
+#         package: '$(System.DefaultWorkingDirectory)/**/*.zip'
 

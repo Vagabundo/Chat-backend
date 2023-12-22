@@ -54,31 +54,31 @@ resource "azurerm_app_service_plan" "freeplan" {
   }
 }
 
-# resource "azurerm_container_group" "webchat_containergroup" {
-#   name                = "${var.resource_group_name}-containergroup"
-#   location            = var.location
-#   resource_group_name = var.resource_group_name
+resource "azurerm_container_group" "webchat_containergroup" {
+  name                = "${var.resource_group_name}-containergroup"
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
-#   ip_address_type = "public"
-#   dns_name_label  = "vagabundo-${var.project_name}"
-#   os_type         = "Linux"
+  ip_address_type = "public"
+  dns_name_label  = "vagabundo-${var.project_name}"
+  os_type         = "Linux"
 
-#   container {
-#     name   = var.project_name
-#     image  = "vagabundocker/${var.project_name}:${var.imagebuild}"
-#     cpu    = "1"
-#     memory = "1"
+  container {
+    name   = var.project_name
+    image  = "vagabundocker/${var.project_name}:${var.imagebuild}"
+    cpu    = "1"
+    memory = "1"
 
-#     ports {
-#       port     = 80
-#       protocol = "TCP"
-#     }
-#   }
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+  }
 
-#   tags = {
-#     Environment = "Web chat"
-#   }
-# }
+  tags = {
+    Environment = "Web chat"
+  }
+}
 
 # resource "azurerm_app_service_plan" "linuxfreeplan" {
 #   name                = "${var.resource_group_name}-linuxplan"
@@ -93,19 +93,19 @@ resource "azurerm_app_service_plan" "freeplan" {
 #   }
 # }
 
-resource "azurerm_app_service" "vagachatappservice" {
-  name                = "${var.resource_group_name}-appservice"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  app_service_plan_id = azurerm_app_service_plan.freeplan.id
+# resource "azurerm_app_service" "vagachatappservice" {
+#   name                = "${var.resource_group_name}-appservice"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   app_service_plan_id = azurerm_app_service_plan.freeplan.id
 
-  site_config {
-    dotnet_framework_version = "v6.0"
-    # linux_fx_version          = "DOTNETCORE|3.1"
-    use_32_bit_worker_process = true
-  }
+#   site_config {
+#     dotnet_framework_version = "v6.0"
+#     # linux_fx_version          = "DOTNETCORE|3.1"
+#     use_32_bit_worker_process = true
+#   }
 
-  tags = {
-    Environment = "Web chat"
-  }
-}
+#   tags = {
+#     Environment = "Web chat"
+#   }
+# }

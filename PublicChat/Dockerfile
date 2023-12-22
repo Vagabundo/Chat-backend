@@ -1,5 +1,7 @@
 # Get Base Image (Full .NET Core SDK)
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
+ARG API_KEY
+
 WORKDIR /app
 
 # Copy csproj and restore
@@ -13,7 +15,7 @@ RUN dotnet publish -c Release -o out
 # Generate runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine
 WORKDIR /app
-ENV OPENAI_API_KEY=MY_OPENAI_KEY
+ENV OPENAI_API_KEY=$API_KEY
 EXPOSE 80
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "PublicChat.dll"]
