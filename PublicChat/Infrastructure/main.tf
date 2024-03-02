@@ -54,48 +54,62 @@ resource "azurerm_resource_group" "rg" {
 #   }
 # }
 
-resource "azurerm_container_group" "webchat_containergroup" {
-  name                = "${var.resource_group_name}-containergroup"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+# resource "azurerm_container_group" "webchat_containergroup" {
+#   name                = "${var.resource_group_name}-containergroup"
+#   location            = var.location
+#   resource_group_name = var.resource_group_name
 
-  ip_address_type = "public"
-  dns_name_label  = "vagabundo-${var.project_name}"
-  os_type         = "Linux"
+#   ip_address_type = "public"
+#   dns_name_label  = "vagabundo-${var.project_name}"
+#   os_type         = "Linux"
 
-  container {
-    name   = var.project_name
-    image  = "vagabundocker/${var.project_name}:${var.imagebuild}"
-    cpu    = "1"
-    memory = "1"
+#   container {
+#     name   = var.project_name
+#     image  = "vagabundocker/${var.project_name}:${var.imagebuild}"
+#     cpu    = "1"
+#     memory = "1"
 
-    ports {
-      port     = 80
-      protocol = "TCP"
-    }
+#     ports {
+#       port     = 80
+#       protocol = "TCP"
+#     }
+#   }
+
+#   tags = {
+#     Environment = "Web chat"
+#   }
+
+#   # esto no sería necesario si mas arriba usaramos azurerm_resource_group.rg.location,
+#   # pero lo dejo como ejemplo de uso de depends_on
+#   depends_on = [azurerm_resource_group.rg]
+# }
+
+resource "azurerm_app_service_plan" "linuxfreeplan" {
+  name                = "${var.resource_group_name}-linuxplan"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  kind = "Linux"
+  reserved = true
+
+  sku {
+    tier = "Free"
+    size = "F1"
   }
-
-  tags = {
-    Environment = "Web chat"
-  }
-
-  # esto no sería necesario si mas arriba usaramos azurerm_resource_group.rg.location,
-  # pero lo dejo como ejemplo de uso de depends_on
-  depends_on = [azurerm_resource_group.rg]
 }
 
-# resource "azurerm_app_service_plan" "linuxfreeplan" {
-#   name                = "${var.resource_group_name}-linuxplan"
-#   location            = azurerm_resource_group.rg.location
-#   resource_group_name = azurerm_resource_group.rg.name
-#   kind = "Linux"
-#   reserved = true
-
-#   sku {
-#     tier = "Free"
-#     size = "F1"
-#   }
-# }
+# Create the Azure App Service
+resource "azurerm_app_service" "vagachat-appservice" {
+  name                = "${var.resource_group_name}-appservice"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  app_service_plan_id = azurerm_app_service_plan.linuxfreeplan.id
+  https_only = false
+  
+  site_config {
+    linux_fx_version = "DOCKER|vagabundocker/${var.project_name}:${var.imagebuild}"
+    use_32_bit_worker_process = true
+  }
+}
 
 # resource "azurerm_app_service" "vagachatappservice" {
 #   name                = "${var.resource_group_name}-appservice"
