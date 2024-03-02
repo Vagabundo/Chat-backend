@@ -55,7 +55,8 @@ namespace PublicChat
                 {
                     builder
                         //.AllowAnyOrigin()
-                        .WithOrigins("http://localhost", "http://vagabundo-webchat-front.westeurope.azurecontainer.io")
+                        .WithOrigins("http://localhost", "http://vagabundo-webchat-front.westeurope.azurecontainer.io",
+                        "https://webchatfront-dev-appservice.azurewebsites.net", "http://webchatfront-dev-appservice.azurewebsites.net")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
@@ -65,7 +66,6 @@ namespace PublicChat
             services.AddScoped<IAIChatService, ChatGPTService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
